@@ -88,11 +88,11 @@ public class MqttH2StorageController implements MqttCallback {
 			stmt.execute("CREATE TABLE IF NOT EXISTS aggregation_registered_last_time_sensors(sensor_id VARCHAR(255),"
 					+ " device_id VARCHAR(255), last_time TIMESTAMP)");
 			
-			ResultSet rs = stmt.executeQuery("SELECT * FROM sensor_data");
+			/*ResultSet rs = stmt.executeQuery("SELECT * FROM sensor_data");
             ResultSetMetaData meta = rs.getMetaData();
             while (rs.next()) {
                 writeResult(rs, meta.getColumnCount());
-            }
+            }*/
             /*
 			rs = stmt.executeQuery("CALL DISK_SPACE_USED('sensor_data')");
 			meta = rs.getMetaData();

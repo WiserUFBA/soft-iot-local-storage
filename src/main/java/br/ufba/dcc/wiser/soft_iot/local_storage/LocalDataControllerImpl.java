@@ -125,7 +125,7 @@ public class LocalDataControllerImpl implements LocalDataController{
 			Timestamp lastTimestamp = new java.sql.Timestamp(lastDate.getTime());
 			String query = "SELECT * FROM sensor_data WHERE device_id='" + device.getId() + "' AND " +
 					   "sensor_id='" + sensor.getId() + "' AND " +
-					   "aggregation_status = '" + aggregationStatus + "' AND start_datetime >'" + lastTimestamp +
+					   "aggregation_status = " + aggregationStatus + " AND start_datetime > '" + lastTimestamp +
 					   "' ORDER BY start_datetime ASC";
 			ResultSet rs = stmt.executeQuery(query);
 			while(rs.next()) {
