@@ -21,6 +21,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.osgi.service.blueprint.container.ServiceUnavailableException;
@@ -45,6 +46,8 @@ public class MqttH2StorageController implements MqttCallback {
 	private DataSource dataSource;
 	private String numOfHoursDataStored;
 	private Controller fotDevices;
+	private int defaultCollectionTime;
+	private int defaultPublishingTime;
 	private boolean debugModeValue;
 
 	public void init() {
@@ -111,6 +114,7 @@ public class MqttH2StorageController implements MqttCallback {
 	}
 	
 	private void subscribeDevicesTopics(List<Device> devices) throws MqttException{
+		this.subscriber.subscribe("CONNECTED", 1);
 		for(Device device : devices){
 			printlnDebug(TATUWrapper.topicBase + device.getId() + "/#");
 			this.subscriber.subscribe(TATUWrapper.topicBase + device.getId() + "/#", 1);
@@ -163,7 +167,7 @@ public class MqttH2StorageController implements MqttCallback {
 
 	}
 
-	public synchronized void messageArrived(String topic,
+	public synchronized void messageArrived(final String topic,
 			final MqttMessage message) throws Exception {
 		new Thread(new Runnable() {
 			public void run() {
@@ -183,9 +187,56 @@ public class MqttH2StorageController implements MqttCallback {
 					catch (ServiceUnavailableException e) {
 						e.printStackTrace();
 					}
+				}else if(topic.contentEquals("CONNECTED")){
+					try {
+						Thread.sleep(2000);
+						Device device = fotDevices.getDeviceById(messageContent);
+						if(device != null)
+							sendFlowRequest(device);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ServiceUnavailableException e) {
+						e.printStackTrace();
+					}
+					
 				}
 			}
 		}).start();
+	}
+	
+	private void sendFlowRequest(Device device){
+		try{
+			if(device != null){
+				List<Sensor> sensors = device.getSensors();
+				for(Sensor sensor : sensors){
+					String flowRequest;
+					if(sensor.getCollection_time() <= 0){
+						flowRequest = TATUWrapper.getTATUFlowValue(sensor.getId(), defaultCollectionTime, defaultPublishingTime);
+					}else{
+						flowRequest = TATUWrapper.getTATUFlowValue(sensor.getId(), sensor.getCollection_time(), sensor.getPublishing_time());
+					}
+					printlnDebug("[topic: " + device.getId() +"] " + flowRequest);
+					publishTATUMessage(flowRequest, device.getId());
+				}
+			}
+		}catch (ServiceUnavailableException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void publishTATUMessage(String msg, String topicName){
+		MqttMessage mqttMsg = new MqttMessage();
+		mqttMsg.setPayload(msg.getBytes());
+		String topic = TATUWrapper.topicBase + topicName;
+		try {
+			subscriber.publish(topic, mqttMsg);
+		} catch (MqttPersistenceException e) {
+			e.printStackTrace();
+		} catch (MqttException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	private void storeSensorData(List<SensorData> listSensorData, Device device){
@@ -280,6 +331,14 @@ public class MqttH2StorageController implements MqttCallback {
 
 	public void setFotDevices(Controller fotDevices) {
 		this.fotDevices = fotDevices;
+	}
+	
+	public void setDefaultCollectionTime(int defaultCollectionTime) {
+		this.defaultCollectionTime = defaultCollectionTime;
+	}
+
+	public void setDefaultPublishingTime(int defaultPublishingTime) {
+		this.defaultPublishingTime = defaultPublishingTime;
 	}
 	
 	public void setDebugModeValue(boolean debugModeValue) {

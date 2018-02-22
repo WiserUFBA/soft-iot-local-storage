@@ -49,6 +49,8 @@
 		<property name="numOfHoursDataStored" value="${NumberOfHoursDataStored}" />
 		<property name="fotDevices" ref="connectedDevices" />
 		<property name="debugModeValue" value="${debugMode}" />
+		<property name="defaultCollectionTime" value="${DefaultCollectionTimeSensorData}" />
+		<property name="defaultPublishingTime" value="${DefaultPublishingTimeSensorData}" />
 	</bean>
 	
 	<bean id="LocalDataControllerBean" class="br.ufba.dcc.wiser.soft_iot.local_storage.LocalDataControllerImpl">

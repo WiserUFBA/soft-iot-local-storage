@@ -9,7 +9,7 @@
 	<artifactId>fot-gateway-local-storage</artifactId>
 	<description>Module of SOFT-IoT plataform to collected data sensors of connected devices and store them in a local database.</description>
 	<groupId>br.ufba.dcc.wiser.soft_iot</groupId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>bundle</packaging>
 
 	<properties>
@@ -95,7 +95,7 @@
 		<dependency>
 			<groupId>br.ufba.dcc.wiser.soft_iot</groupId>
 			<artifactId>fot-gateway-mapping-devices</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
