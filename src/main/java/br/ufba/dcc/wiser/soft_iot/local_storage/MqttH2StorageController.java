@@ -188,6 +188,7 @@ public class MqttH2StorageController implements MqttCallback {
 						e.printStackTrace();
 					}
 				}else if(topic.contentEquals("CONNECTED")){
+					System.out.println("OPA connected");
 					try {
 						Thread.sleep(2000);
 						Device device = fotDevices.getDeviceById(messageContent);
