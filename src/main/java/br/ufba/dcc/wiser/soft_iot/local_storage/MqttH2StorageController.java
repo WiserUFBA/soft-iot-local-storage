@@ -33,7 +33,7 @@ import br.ufba.dcc.wiser.soft_iot.mapping_devices.Controller;
 import br.ufba.dcc.wiser.soft_iot.tatu.TATUWrapper;
 
 
-public class MqttH2StorageController implements MqttCallback {
+public class MqttH2StorageController implements MqttCallback  {
 
 	private String brokerUrl;
 	private String brokerPort;
