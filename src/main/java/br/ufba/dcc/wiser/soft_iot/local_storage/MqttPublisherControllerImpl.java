@@ -74,11 +74,12 @@ public class MqttPublisherControllerImpl implements  MqttPublisherController{
 		}
 	}
 	
-	public boolean sendPostActuator(Actuator actuator, String value){
+	public boolean sendPostActuator(Device device, Actuator actuator, String value){
 		String msg = TATUWrapper.getTATUPost(actuator.getId(), value);
 		MqttMessage mqttMsg = new MqttMessage();
 		mqttMsg.setPayload(msg.getBytes());
-		String topic = TATUWrapper.topicBase + actuator.getId();
+		String topic = TATUWrapper.topicBase + device.getId();
+		printlnDebug("publishing on topic: " + topic);
 		try {
 			publisher.publish(topic, mqttMsg);
 			return true;

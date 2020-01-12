@@ -17,13 +17,15 @@ public interface LocalDataController {
 	
 	List<SensorData> getSensorDataByAggregationStatusAndDate(Device device, Sensor sensor, int aggregationStatus, Date lastDate);
 	
-	void insertSensorDataAggregated(List<SensorData> listSensorData, int aggregationStatus);
+	List<SensorData> getSensorDataByAggregationStatusDateAndFunction(Device device, Sensor sensor, int aggregationStatus, Date lastDate, String aggregationFunction);
 	
-	void createFirstLastSensorDataAggregated(Device device, Sensor sensor, Date lastDateTime);
+	void insertSensorDataAggregated(List<SensorData> listSensorData, int aggregationStatus, String aggregationFunction);
 	
-	void updateLastSensorDataAggregated(Device device, Sensor sensor, Date lastDateTime);
+	void createFirstLastSensorDataAggregated(Device device, Sensor sensor, Date lastDateTime, String aggregationFunction);
 	
-	Date getLastDateOfAggregatedSensorData(Device device, Sensor sensor);
+	void updateLastSensorDataAggregated(Device device, Sensor sensor, Date lastDateTime, String aggregationFunction);
+	
+	Date getLastDateOfAggregatedSensorData(Device device, Sensor sensor, String aggregationFunction);
 	
 	void createFirstLastSensorDataEnriched(Device device, Sensor sensor, Date lastDateTime);
 	

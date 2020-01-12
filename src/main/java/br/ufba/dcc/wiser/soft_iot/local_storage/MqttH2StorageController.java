@@ -86,13 +86,14 @@ public class MqttH2StorageController implements MqttCallback  {
 					+ dbMeta.getDatabaseProductName() + ", URL "
 					+ dbMeta.getURL());
 			stmt.execute("CREATE TABLE IF NOT EXISTS sensor_data(ID BIGINT AUTO_INCREMENT PRIMARY KEY, sensor_id VARCHAR(255),"
-					+ " device_id VARCHAR(255), data_value VARCHAR(255), start_datetime TIMESTAMP, end_datetime TIMESTAMP, aggregation_status INT DEFAULT 0)");
+					+ " device_id VARCHAR(255), data_value VARCHAR(255), start_datetime TIMESTAMP, end_datetime TIMESTAMP, aggregation_status INT DEFAULT 0,"
+					+ " aggregation_function VARCHAR(255))");
 			
 			stmt.execute("CREATE TABLE IF NOT EXISTS semantic_registered_last_time_sensors(sensor_id VARCHAR(255),"
 					+ " device_id VARCHAR(255), last_time TIMESTAMP)");
 			
 			stmt.execute("CREATE TABLE IF NOT EXISTS aggregation_registered_last_time_sensors(sensor_id VARCHAR(255),"
-					+ " device_id VARCHAR(255), last_time TIMESTAMP)");
+					+ " device_id VARCHAR(255), aggregation_function VARCHAR(255), last_time TIMESTAMP)");
 			
 			/*ResultSet rs = stmt.executeQuery("SELECT * FROM sensor_data");
             ResultSetMetaData meta = rs.getMetaData();
