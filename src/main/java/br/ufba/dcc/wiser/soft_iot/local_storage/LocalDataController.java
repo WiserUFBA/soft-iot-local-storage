@@ -1,8 +1,10 @@
 package br.ufba.dcc.wiser.soft_iot.local_storage;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import br.ufba.dcc.wiser.soft_iot.entities.Actuator;
 import br.ufba.dcc.wiser.soft_iot.entities.Device;
 import br.ufba.dcc.wiser.soft_iot.entities.Sensor;
 import br.ufba.dcc.wiser.soft_iot.entities.SensorData;

@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.osgi.service.blueprint.container.ServiceUnavailableException;
 
+import br.ufba.dcc.wiser.soft_iot.entities.Actuator;
 import br.ufba.dcc.wiser.soft_iot.entities.Device;
 import br.ufba.dcc.wiser.soft_iot.entities.Sensor;
 import br.ufba.dcc.wiser.soft_iot.entities.SensorData;
@@ -88,7 +89,9 @@ public class MqttH2StorageController implements MqttCallback  {
 			stmt.execute("CREATE TABLE IF NOT EXISTS sensor_data(ID BIGINT AUTO_INCREMENT PRIMARY KEY, sensor_id VARCHAR(255),"
 					+ " device_id VARCHAR(255), data_value VARCHAR(255), start_datetime TIMESTAMP, end_datetime TIMESTAMP, aggregation_status INT DEFAULT 0,"
 					+ " aggregation_function VARCHAR(255))");
-			
+			stmt.execute("CREATE TABLE IF NOT EXISTS actuator_data(ID BIGINT AUTO_INCREMENT PRIMARY KEY, actuator_id VARCHAR(255),"
+					+ " device_id VARCHAR(255), data_value VARCHAR(255), start_datetime TIMESTAMP, end_datetime TIMESTAMP, aggregation_status INT DEFAULT 0,"
+					+ " aggregation_function VARCHAR(255))");
 			stmt.execute("CREATE TABLE IF NOT EXISTS semantic_registered_last_time_sensors(sensor_id VARCHAR(255),"
 					+ " device_id VARCHAR(255), last_time TIMESTAMP)");
 			
@@ -172,7 +175,6 @@ public class MqttH2StorageController implements MqttCallback  {
 			final MqttMessage message) throws Exception {
 		new Thread(new Runnable() {
 			public void run() {
-				
 				String messageContent = new String(message.getPayload());
 				printlnDebug("topic: " + topic + "message: " + messageContent);
 				if(TATUWrapper.isValidTATUAnswer(messageContent)){
@@ -190,6 +192,23 @@ public class MqttH2StorageController implements MqttCallback  {
 					catch (ServiceUnavailableException e) {
 						e.printStackTrace();
 					}
+				}else if (TATUWrapper.isValidTATUActuatorRequest(messageContent)){
+					String deviceId = TATUWrapper.getDeviceIdByTopic(topic).split(TATUWrapper.topicBase)[1];
+					Device device = fotDevices.getDeviceById(deviceId);
+					
+					String actuatorId = TATUWrapper.getActuatorIdByTATURequest(messageContent);
+					
+					Actuator actuator = device.getActuatorbyActuatorId(actuatorId);
+					Date date = new Date();
+					Timestamp startDateTime = new Timestamp(date.getTime());
+					Timestamp endDateTime = new Timestamp(date.getTime());
+					String value = TATUWrapper.getValueByTATURequest(messageContent);
+					
+					insertAcutatorData(actuator,device, value, startDateTime, endDateTime, 0, "");
+					
+					
+					
+					
 				}else if(topic.contentEquals("CONNECTED")){
 					printlnDebug("Resending FLOW request for device: " + messageContent);
 					try {
@@ -241,6 +260,26 @@ public class MqttH2StorageController implements MqttCallback  {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	private void insertAcutatorData(Actuator actuator, Device device, String value, Timestamp startDateTime, Timestamp endDateTime, int aggregationStatus, String aggregationFunction){
+		Connection dbConnection;
+		try {
+			dbConnection = this.dataSource.getConnection();
+			Statement stmt = dbConnection.createStatement();
+			boolean result = stmt.execute("INSERT INTO actuator_data (actuator_id, device_id, data_value,"
+					+ " start_datetime, end_datetime, aggregation_status, aggregation_function) values ('"
+					+ actuator.getId() + "', '" + device.getId() +"', '"
+					+ value + "' ,'" + startDateTime + "', '" + endDateTime + "',0,'')");
+			if(result){
+				printlnDebug("cannot insert data:" + "('"+ actuator.getId() + "', '" + device.getId() +"', '" + value + "' ,'" + startDateTime
+						+ "', '" + endDateTime + "'," + aggregationStatus + ", '"+ aggregationFunction+	"')");
+			}
+			dbConnection.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void storeSensorData(List<SensorData> listSensorData, Device device){

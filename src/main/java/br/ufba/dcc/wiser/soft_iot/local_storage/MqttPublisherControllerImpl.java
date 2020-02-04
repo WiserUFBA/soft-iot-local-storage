@@ -81,7 +81,8 @@ public class MqttPublisherControllerImpl implements  MqttPublisherController{
 		String topic = TATUWrapper.topicBase + device.getId();
 		printlnDebug("publishing on topic: " + topic);
 		try {
-			publisher.publish(topic, mqttMsg);
+			publisher.publish(topic, mqttMsg.getPayload(),2, true);
+			System.out.println("Actuator request published...");
 			return true;
 		} catch (MqttPersistenceException e) {
 			e.printStackTrace();
